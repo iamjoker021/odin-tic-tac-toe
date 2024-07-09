@@ -54,22 +54,38 @@ function createGameBoardController() {
 }
 
 function createPlayerController(name1='X', name2='Y') {
-    function createPlayer(name, token) {    
+    function createPlayer(name) {    
         const getName = () => name;
-        
-        const getToken = () => token;
         
         let score = 0;
         const win = () => score++;
         const getScore = () => score;
+        
+        let token;
+        const getToken = () => token;
+        const setToken = (newToken) => {
+            token = newToken;
+        }
     
-        return { getName, win, getScore, getToken};
+        return { getName, win, getScore, getToken, setToken};
+    }
+
+    const switchTokens = () => {
+        if (players[0].getToken === 'X') {
+            players[0].setToken('Y');
+            players[1].setToken('X');
+        }
+        else {
+            players[0].setToken('X');
+            players[1].setToken('Y');
+        }
     }
 
     players = [
-        createPlayer(name1, token='X'),
-        createPlayer(name2, token='Y')
+        createPlayer(name1),
+        createPlayer(name2)
     ];
+    switchTokens();
 
     let currentPlayer = players[0];
     const getCurrentPlayer = () => currentPlayer;
@@ -84,7 +100,7 @@ function createPlayerController(name1='X', name2='Y') {
         ]
     }
 
-    return {getCurrentPlayer, switchPlayerTurn, getPlayersScore}
+    return {getCurrentPlayer, switchPlayerTurn, getPlayersScore, switchTokens}
 }
 
 const gameController = () => {
