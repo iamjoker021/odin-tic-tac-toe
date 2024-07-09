@@ -15,17 +15,33 @@
             </div>
             <div>
                 <label for="player1">Player 1 Name: </label>
-                <input type="text" name="player1" id="player1">
+                <input type="text" name="player1" id="player1" required>
             </div>
             <div>
                 <label for="player2">Player 2 Name: </label>
-                <input type="text" name="player2" id="player2">
+                <input type="text" name="player2" id="player2" required>
             </div>
             <div>
                 <button type="submit">Submit</button>
             </div>
         </form>
     </dialog>
+
+    <dialog class="restart">
+        <form>
+            <div>
+                <h3>ODIN | Tic Tac Toe</h3>
+            </div>
+            <div>
+                <h3 class="winner"></h3>
+            </div>
+            <div>
+                <button type="submit">Wanna Play again?</button>
+            </div>
+        </form>
+    </dialog>
+
+
     <header>
         <h1>ODIN | Tic Tac Toe</h1>
     </header>
@@ -33,7 +49,6 @@
         <table>
             <!-- Fill Scoreboard -->
         </table>
-        <h3 class="winner"></h3>
     </div>
     <section class="game-board">
         <!-- Add Game Cells -->

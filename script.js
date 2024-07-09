@@ -17,7 +17,6 @@ function createGameBoardController() {
     const updateCell = (index, token) => {
         const i = Math.floor((index - 1) / dim);
         const j = index - (i * 3) - 1;
-        console.log(i, j, index)
         if ( i< dim && j < dim) {
             if (board[i][j] === DEFAULT_VALUE) {
                 board[i][j] = token;
@@ -60,7 +59,6 @@ function createGameBoardController() {
 
 function createPlayerController(name1='X', name2='Y') {
     function createPlayer(name) {
-        
         let score = 0;
         const win = () => score++;
         
@@ -71,36 +69,34 @@ function createPlayerController(name1='X', name2='Y') {
 
         const getPlayer = () => { 
             return {name, score, token}
-         }
+        }
     
         return { getPlayer, win, setToken};
     }
 
     const switchPlayerTokens = () => {
-        if (players[0].getPlayer().token === 'X') {
-            players[0].setToken('Y');
-            players[1].setToken('X');
+        if (player1.getPlayer().token === 'X') {
+            player1.setToken('Y');
+            player2.setToken('X');
         }
         else {
-            players[0].setToken('X');
-            players[1].setToken('Y');
+            player1.setToken('X');
+            player2.setToken('Y');
         }
     }
 
-    players = [
-        createPlayer(name1),
-        createPlayer(name2)
-    ];
+    player1 = createPlayer(name1)
+    player2 = createPlayer(name2)
     switchPlayerTokens();
 
-    let currentPlayer = players[0];
+    let currentPlayer = player1;
     const getCurrentPlayer = () => currentPlayer;
     const switchPlayerTurn = () => {
-        currentPlayer = currentPlayer === players[0] ? players[1] : players[0];
+        currentPlayer = currentPlayer === player1 ? player2 : player1;
     };
 
     const getPlayers = () => {
-        return [ players[0].getPlayer(), players[1].getPlayer() ]
+        return [ player1.getPlayer(), player2.getPlayer() ]
     }
 
     return {getCurrentPlayer, switchPlayerTurn, getPlayers, switchPlayerTokens}
@@ -127,7 +123,8 @@ const gameController = (name1, name2) => {
         getGameBoard: gameBoard.getBoard,
         getGameStatus: gameBoard.gameStatus, 
         getPlayers: playerController.getPlayers,
-        switchPlayerTokens: playerController.switchPlayerTurn,
+        switchPlayerTurn: playerController.switchPlayerTurn,
+        switchPlayerTokens: playerController.switchPlayerTokens,
         updateWinner: updateWinner,
         getCurrentPlayer: playerController.getCurrentPlayer
     };
@@ -138,9 +135,14 @@ function displayController(name1='player1', name2='player2') {
     game.createGameBoard();
 
     // Display Score Board
-    (function () {
+    function displayScoreBoard() {
         const scoreBoard = document.querySelector('.score-board table');
+        while (scoreBoard.firstChild) {
+            scoreBoard.removeChild(scoreBoard.firstChild);
+        }
+
         players = game.getPlayers();
+        console.log(players);
         for (const player of players) {
             const row = document.createElement('tr');
             scoreBoard.appendChild(row);
@@ -153,11 +155,15 @@ function displayController(name1='player1', name2='player2') {
             score.textContent = player.score;
             row.appendChild(score);
         }
-    })();
+    };
+    displayScoreBoard();
     
     // Display GameBoard
     const gameBoard = document.querySelector('.game-board');
-    (function () {
+    function displayBoard() {
+        while (gameBoard.firstChild) {
+            gameBoard.removeChild(gameBoard.firstChild);
+        }
         const board = game.getGameBoard();
         for (const cell of board.flat()) {
             const div = document.createElement('div');
@@ -171,7 +177,8 @@ function displayController(name1='player1', name2='player2') {
             button.dataset.index = gameBoard.children.length;
             div.appendChild(button)
         }
-    })();
+    };
+    displayBoard();
 
     const updateDisplay = (id, token) => {
         const button = document.querySelector(`button#${id}`)
@@ -179,8 +186,20 @@ function displayController(name1='player1', name2='player2') {
     }
 
     const updateWinner = (result) => {
+        displayScoreBoard();
+
         const winnerDiv = document.querySelector('.winner');
         winnerDiv.textContent = result;
+
+        const restartDialog = document.querySelector('dialog.restart')
+        restartDialog.showModal();
+
+        restartDialog.addEventListener('click', (e) => {
+            e.preventDefault();
+            game.createGameBoard();
+            displayBoard();
+            restartDialog.close();
+        })
     }
 
     gameBoard.addEventListener('click', (e) => {
@@ -189,14 +208,20 @@ function displayController(name1='player1', name2='player2') {
 
         gameStatus = game.getGameStatus();
         if (gameStatus.status === -1) {
+            game.switchPlayerTokens();
             updateWinner("Tie");
         }
         else if (gameStatus.status === 1) {
             game.updateWinner();
+            game.switchPlayerTokens();
             updateWinner(`${game.getCurrentPlayer().getPlayer().name} wins the game`);
         }
+        game.switchPlayerTurn();
+    })
 
-        game.switchPlayerTokens();
+    document.querySelector('.reset button').addEventListener('click', (e) => {
+        game.createGameBoard();
+        displayBoard()
     })
 }
 
