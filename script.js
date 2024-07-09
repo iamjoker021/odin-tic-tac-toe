@@ -54,24 +54,25 @@ function createGameBoardController() {
 }
 
 function createPlayerController(name1='X', name2='Y') {
-    function createPlayer(name) {    
-        const getName = () => name;
+    function createPlayer(name) {
         
         let score = 0;
         const win = () => score++;
-        const getScore = () => score;
         
         let token;
-        const getToken = () => token;
         const setToken = (newToken) => {
             token = newToken;
         }
+
+        const getPlayer = () => { 
+            return {name, score, token}
+         }
     
-        return { getName, win, getScore, getToken, setToken};
+        return { getPlayer, win, setToken};
     }
 
     const switchPlayerTokens = () => {
-        if (players[0].getToken === 'X') {
+        if (players[0].getPlayer().token === 'X') {
             players[0].setToken('Y');
             players[1].setToken('X');
         }
@@ -94,10 +95,7 @@ function createPlayerController(name1='X', name2='Y') {
     };
 
     const getPlayersScore = () => {
-        return [
-            { player: players[0].getName(), score: players[0].getScore()},
-            { player: players[1].getName(), score: players[1].getScore()}
-        ]
+        return [ players[0].getPlayer(), players[1].getPlayer() ]
     }
 
     return {getCurrentPlayer, switchPlayerTurn, getPlayersScore, switchPlayerTokens}
@@ -115,11 +113,11 @@ const gameController = () => {
 
     // Recieve Input from current player
     const playGame = () => {
-        currentPlayer = playerController.getCurrentPlayer();
+        currentPlayer = playerController.getCurrentPlayer().getPlayer();
         let updateStatus;
         do {
-            const index = prompt(`${currentPlayer.getName()} (${currentPlayer.getToken()}) turn (Give index no): `);
-            updateStatus = gameBoard.updateCell(index, currentPlayer.getToken());
+            const index = prompt(`${currentPlayer.name} (${currentPlayer.token}) turn (Give index no): `);
+            updateStatus = gameBoard.updateCell(index, currentPlayer.token);
         }
         while (!updateStatus)
         playerController.switchPlayerTurn();
@@ -142,7 +140,6 @@ function displayController() {
         const gameBoard = document.querySelector('.game-board');
 
         const board = game.getGameBoard();
-        console.log(board);
         for (const cell of board.flat()) {
             const div = document.createElement('div');
             div.classList.add('cell');
