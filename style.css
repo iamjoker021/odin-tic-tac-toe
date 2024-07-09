@@ -58,6 +58,10 @@ div.cell > button:active {
     background-color: rgb(114, 235, 114);
 }
 
+td {
+    padding: 5px 10px;
+}
+
 /*** Layout ***/
 
 html, body {

@@ -1,6 +1,6 @@
 function createGameBoardController() {
     const dim = 3;
-    const DEFAULT_VALUE = "0"
+    const DEFAULT_VALUE = "-"
 
     let board = [];
     const createNewGameBoard = () => {
@@ -113,42 +113,72 @@ const gameController = () => {
         }
     }
 
-    function playGame() {
-        gameBoard.createNewGameBoard();
-    
-        // Recieve Input from current player
-        const playerTurn = () => {
-            currentPlayer = playerController.getCurrentPlayer();
-            let updateStatus;
-            do {
-                const index = prompt(`${currentPlayer.getName()} (${currentPlayer.getToken()}) turn (Give index no): `);
-                updateStatus = gameBoard.updateCell(index, currentPlayer);
-            }
-            while (!updateStatus)
-            playerController.switchPlayerTurn();
+    // Recieve Input from current player
+    const playGame = () => {
+        currentPlayer = playerController.getCurrentPlayer();
+        let updateStatus;
+        do {
+            const index = prompt(`${currentPlayer.getName()} (${currentPlayer.getToken()}) turn (Give index no): `);
+            updateStatus = gameBoard.updateCell(index, currentPlayer.getToken());
         }
-    
-        // Check Game Status
-        let gameStatus = gameBoard.gameStatus();
-        while (gameStatus.status === 0) {
-            printGameBoard(gameBoard.getBoard());
-            playerTurn();
-            gameStatus = gameBoard.gameStatus();
-        }
-
-        // Switch Player Tokens
-        playerController.switchPlayerTokens();
-        
-        printGameBoard(gameBoard.getBoard());
-        if (gameStatus.status === -1) {
-            return "Tie";
-        }
-        else if (gameStatus.status === 1) {
-            gameStatus.player.win();
-            return `${gameStatus.player.getName()} wins the game`;
-        }
+        while (!updateStatus)
+        playerController.switchPlayerTurn();
     }
 
-    return {playGame, getPlayersScore: playerController.getPlayersScore};
+    return {
+        playGame: playGame, 
+        createGameBoard: gameBoard.createNewGameBoard,
+        getGameBoard: gameBoard.getBoard,
+        getGameStatus: gameBoard.gameStatus, 
+        getPlayersScore: playerController.getPlayersScore
+    };
 }
 
+function displayController() {
+    const game = gameController();
+    game.createGameBoard();
+
+    const updateScreen = () => {
+        const gameBoard = document.querySelector('.game-board');
+
+        const board = game.getGameBoard();
+        console.log(board);
+        for (const cell of board.flat()) {
+            const div = document.createElement('div');
+            div.classList.add('cell');
+            gameBoard.appendChild(div);
+
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.textContent = cell;
+            button.dataset.index = gameBoard.children.length;
+            div.appendChild(button)
+        }
+
+    }
+
+    updateScreen();
+
+    // Check Game Status
+    // let gameStatus = gameBoard.gameStatus();
+    // while (gameStatus.status === 0) {
+    //     printGameBoard(gameBoard.getBoard());
+    //     playerTurn();
+    //     gameStatus = gameBoard.gameStatus();
+    // }
+
+    // Switch Player Tokens
+    // playerController.switchPlayerTokens();
+        
+    // printGameBoard(gameBoard.getBoard());
+    // if (gameStatus.status === -1) {
+    //     return "Tie";
+    // }
+    // else if (gameStatus.status === 1) {
+    //     gameStatus.player.win();
+    //     return `${gameStatus.player.getName()} wins the game`;
+    // }
+    
+}
+
+displayController();
