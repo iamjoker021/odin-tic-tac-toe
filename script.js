@@ -14,14 +14,19 @@ function createGameBoardController() {
 
     const getBoard = () => board;
 
-    const updateCell = (index, player) => {
+    const updateCell = (index, token) => {
         const i = Math.floor((index - 1) / dim);
         const j = index - (i * 3) - 1;
-        if ( i< dim && j < dim && board[i][j] === DEFAULT_VALUE) {
-            board[i][j] = player;
-            return true;
+        console.log(i, j, index)
+        if ( i< dim && j < dim) {
+            if (board[i][j] === DEFAULT_VALUE) {
+                board[i][j] = token;
+                return token;
+            }
+            else {
+                return board[i][j];
+            }
         }
-        return false;
     }
 
     const gameStatus = () => {
@@ -94,51 +99,65 @@ function createPlayerController(name1='X', name2='Y') {
         currentPlayer = currentPlayer === players[0] ? players[1] : players[0];
     };
 
-    const getPlayersScore = () => {
+    const getPlayers = () => {
         return [ players[0].getPlayer(), players[1].getPlayer() ]
     }
 
-    return {getCurrentPlayer, switchPlayerTurn, getPlayersScore, switchPlayerTokens}
+    return {getCurrentPlayer, switchPlayerTurn, getPlayers, switchPlayerTokens}
 }
 
-const gameController = () => {
-    const playerController = createPlayerController('player1', 'player2');
+const gameController = (name1, name2) => {
+    const playerController = createPlayerController(name1, name2);
     const gameBoard = createGameBoardController();
 
-    const printGameBoard = (board) => {
-        for (const row of board) {
-            console.log(...row.map(val => '|' + val + '|'))
-        }
+    // Recieve Input from current player
+    const updateBoard = (index) => {
+        currentPlayer = playerController.getCurrentPlayer().getPlayer();
+        return gameBoard.updateCell(index, currentPlayer.token);
     }
 
-    // Recieve Input from current player
-    const playGame = () => {
-        currentPlayer = playerController.getCurrentPlayer().getPlayer();
-        let updateStatus;
-        do {
-            const index = prompt(`${currentPlayer.name} (${currentPlayer.token}) turn (Give index no): `);
-            updateStatus = gameBoard.updateCell(index, currentPlayer.token);
-        }
-        while (!updateStatus)
-        playerController.switchPlayerTurn();
+    const updateWinner = () => {
+        currentPlayer = playerController.getCurrentPlayer();
+        currentPlayer.win();
     }
 
     return {
-        playGame: playGame, 
+        updateBoard: updateBoard, 
         createGameBoard: gameBoard.createNewGameBoard,
         getGameBoard: gameBoard.getBoard,
         getGameStatus: gameBoard.gameStatus, 
-        getPlayersScore: playerController.getPlayersScore
+        getPlayers: playerController.getPlayers,
+        switchPlayerTokens: playerController.switchPlayerTurn,
+        updateWinner: updateWinner,
+        getCurrentPlayer: playerController.getCurrentPlayer
     };
 }
 
-function displayController() {
-    const game = gameController();
+function displayController(name1='player1', name2='player2') {
+    const game = gameController(name1, name2);
     game.createGameBoard();
 
-    const updateScreen = () => {
-        const gameBoard = document.querySelector('.game-board');
+    // Display Score Board
+    (function () {
+        const scoreBoard = document.querySelector('.score-board table');
+        players = game.getPlayers();
+        for (const player of players) {
+            const row = document.createElement('tr');
+            scoreBoard.appendChild(row);
 
+            const name = document.createElement('th');
+            name.textContent = `${player.name} (${player.token}): `;
+            row.appendChild(name);
+
+            const score = document.createElement('td');
+            score.textContent = player.score;
+            row.appendChild(score);
+        }
+    })();
+    
+    // Display GameBoard
+    const gameBoard = document.querySelector('.game-board');
+    (function () {
         const board = game.getGameBoard();
         for (const cell of board.flat()) {
             const div = document.createElement('div');
@@ -148,34 +167,45 @@ function displayController() {
             const button = document.createElement('button');
             button.type = 'button';
             button.textContent = cell;
+            button.id = `id-${gameBoard.children.length}`;
             button.dataset.index = gameBoard.children.length;
             div.appendChild(button)
         }
+    })();
 
+    const updateDisplay = (id, token) => {
+        const button = document.querySelector(`button#${id}`)
+        button.textContent = token;
     }
 
-    updateScreen();
+    const updateWinner = (result) => {
+        const winnerDiv = document.querySelector('.winner');
+        winnerDiv.textContent = result;
+    }
 
-    // Check Game Status
-    // let gameStatus = gameBoard.gameStatus();
-    // while (gameStatus.status === 0) {
-    //     printGameBoard(gameBoard.getBoard());
-    //     playerTurn();
-    //     gameStatus = gameBoard.gameStatus();
-    // }
+    gameBoard.addEventListener('click', (e) => {
+        const token = game.updateBoard(e.target.dataset.index);
+        updateDisplay(e.target.id, token);
 
-    // Switch Player Tokens
-    // playerController.switchPlayerTokens();
-        
-    // printGameBoard(gameBoard.getBoard());
-    // if (gameStatus.status === -1) {
-    //     return "Tie";
-    // }
-    // else if (gameStatus.status === 1) {
-    //     gameStatus.player.win();
-    //     return `${gameStatus.player.getName()} wins the game`;
-    // }
-    
+        gameStatus = game.getGameStatus();
+        if (gameStatus.status === -1) {
+            updateWinner("Tie");
+        }
+        else if (gameStatus.status === 1) {
+            game.updateWinner();
+            updateWinner(`${game.getCurrentPlayer().getPlayer().name} wins the game`);
+        }
+
+        game.switchPlayerTokens();
+    })
 }
 
-displayController();
+const startDialog = document.querySelector('dialog.intro');
+startDialog.showModal();
+
+document.querySelector('dialog.intro form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    startDialog.close();
+    displayController(formData.get('player1'), formData.get('player2'));
+})

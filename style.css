@@ -23,7 +23,7 @@ div.score-dashboard > p {
 }
 
 
-.reset button {
+.reset button, dialog button {
     padding: 8px 32px;
     border-radius: 50px;
     border: 0;
@@ -62,6 +62,20 @@ td {
     padding: 5px 10px;
 }
 
+dialog {
+    position: absolute;
+    top: 30%;
+    width: 30%;
+    padding: 16px;
+    margin: 0 auto;
+    border-radius: 15px;
+    background-image: linear-gradient(45deg, aquamarine, lightblue, lightgreen, springgreen);
+}
+
+dialog > form > div {
+    margin: 16px;
+}
+
 /*** Layout ***/
 
 html, body {
@@ -78,4 +92,13 @@ section.game-board {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
+}
+
+dialog form{
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
