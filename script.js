@@ -70,7 +70,7 @@ function createPlayerController(name1='X', name2='Y') {
         return { getName, win, getScore, getToken, setToken};
     }
 
-    const switchTokens = () => {
+    const switchPlayerTokens = () => {
         if (players[0].getToken === 'X') {
             players[0].setToken('Y');
             players[1].setToken('X');
@@ -85,7 +85,7 @@ function createPlayerController(name1='X', name2='Y') {
         createPlayer(name1),
         createPlayer(name2)
     ];
-    switchTokens();
+    switchPlayerTokens();
 
     let currentPlayer = players[0];
     const getCurrentPlayer = () => currentPlayer;
@@ -100,11 +100,11 @@ function createPlayerController(name1='X', name2='Y') {
         ]
     }
 
-    return {getCurrentPlayer, switchPlayerTurn, getPlayersScore, switchTokens}
+    return {getCurrentPlayer, switchPlayerTurn, getPlayersScore, switchPlayerTokens}
 }
 
 const gameController = () => {
-    const playerController = createPlayerController();
+    const playerController = createPlayerController('player1', 'player2');
     const gameBoard = createGameBoardController();
 
     const printGameBoard = (board) => {
@@ -121,7 +121,7 @@ const gameController = () => {
             currentPlayer = playerController.getCurrentPlayer();
             let updateStatus;
             do {
-                const index = prompt(`${currentPlayer.getName()} turn (Give index no): `);
+                const index = prompt(`${currentPlayer.getName()} (${currentPlayer.getToken()}) turn (Give index no): `);
                 updateStatus = gameBoard.updateCell(index, currentPlayer);
             }
             while (!updateStatus)
@@ -135,6 +135,9 @@ const gameController = () => {
             playerTurn();
             gameStatus = gameBoard.gameStatus();
         }
+
+        // Switch Player Tokens
+        playerController.switchPlayerTokens();
         
         printGameBoard(gameBoard.getBoard());
         if (gameStatus.status === -1) {

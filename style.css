@@ -51,6 +51,7 @@ div.cell > button {
     background-color: lightgreen;
     border: 0;
     border-radius: 15px;
+    cursor: pointer;
 }
 
 div.cell > button:active {
