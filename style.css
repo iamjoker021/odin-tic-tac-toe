@@ -1,0 +1,67 @@
+/* Init */
+* {
+    margin :0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/*** Style  ***/
+body {
+    background-image: linear-gradient(45deg, aquamarine, lightblue, lightgreen, springgreen);
+}
+
+h1 {
+    margin: 16px 0;
+}
+
+.reset button {
+    padding: 8px 32px;
+    border-radius: 50px;
+    border: 0;
+    background-color: rgb(167, 162, 162);
+    margin: 16px 0;
+}
+
+button:active {
+    background-color: rgb(75, 74, 74);
+}
+
+div.cell {
+    background-color: rgb(115, 228, 115);
+    border-radius: 15px;
+    border: 5px solid gray;
+    height: 100px;
+    aspect-ratio: 1;
+    padding: auto;
+}
+
+div.cell > button {
+    height: 100%;
+    width: 100%;
+    font-size: 2rem;
+    background-color: lightgreen;
+    border: 0;
+    border-radius: 15px;
+}
+
+div.cell > button:active {
+    background-color: rgb(114, 235, 114);
+}
+
+/*** Layout ***/
+
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+section.game-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+}
